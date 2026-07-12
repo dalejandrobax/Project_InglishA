@@ -26,6 +26,7 @@ public class UsuarioDAO {
                 obj.setIdUsuario(rs.getInt("id_usuario"));
                 obj.setUsername(rs.getString("username"));
                 obj.setNombres(rs.getString("nombres"));
+                obj.setApellidos(rs.getString("apellidos"));
                 obj.setIdRol(rs.getInt("id_rol"));
                 obj.setIdNivel(rs.getObject("id_nivel") != null ? rs.getInt("id_nivel") : null);
                 obj.setTipoCuenta(rs.getString("tipo_cuenta"));
@@ -92,6 +93,131 @@ public class UsuarioDAO {
             res = pstm.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error al actualizar nivel: " + e.getMessage());
+        } finally {
+            try {
+                if (pstm != null) {
+                    pstm.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+            }
+        }
+        return res;
+    }
+
+    public int sumarEstrellas(int idUsuario, int cantidad) {
+        int total = -1;
+        Connection con = null;
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+        try {
+            con = MySQLConexion.getConexion();
+            String sql = "UPDATE usuario SET estrellas = COALESCE(estrellas, 0) + ? WHERE id_usuario = ?";
+            pstm = con.prepareStatement(sql);
+            pstm.setInt(1, cantidad);
+            pstm.setInt(2, idUsuario);
+            pstm.executeUpdate();
+            pstm.close();
+            pstm = null;
+
+            sql = "SELECT estrellas FROM usuario WHERE id_usuario = ?";
+            pstm = con.prepareStatement(sql);
+            pstm.setInt(1, idUsuario);
+            rs = pstm.executeQuery();
+            if (rs.next()) {
+                total = rs.getInt("estrellas");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al sumar estrellas: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstm != null) {
+                    pstm.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+            }
+        }
+        return total;
+    }
+
+    public int actualizarTipoCuenta(int idUsuario, String tipoCuenta) {
+        int res = 0;
+        Connection con = null;
+        PreparedStatement pstm = null;
+        try {
+            con = MySQLConexion.getConexion();
+            String sql = "UPDATE usuario SET tipo_cuenta = ? WHERE id_usuario = ?";
+            pstm = con.prepareStatement(sql);
+            pstm.setString(1, tipoCuenta);
+            pstm.setInt(2, idUsuario);
+            res = pstm.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error al actualizar tipo de cuenta: " + e.getMessage());
+        } finally {
+            try {
+                if (pstm != null) {
+                    pstm.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+            }
+        }
+        return res;
+    }
+
+    public int actualizarDatosCuenta(int idUsuario, String username, String nombres, String apellidos) {
+        int res = 0;
+        Connection con = null;
+        PreparedStatement pstm = null;
+        try {
+            con = MySQLConexion.getConexion();
+            String sql = "UPDATE usuario SET username = ?, nombres = ?, apellidos = ? WHERE id_usuario = ?";
+            pstm = con.prepareStatement(sql);
+            pstm.setString(1, username);
+            pstm.setString(2, nombres);
+            pstm.setString(3, apellidos);
+            pstm.setInt(4, idUsuario);
+            res = pstm.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error al actualizar datos de cuenta: " + e.getMessage());
+        } finally {
+            try {
+                if (pstm != null) {
+                    pstm.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+            }
+        }
+        return res;
+    }
+
+    public int actualizarPassword(int idUsuario, String passwordActual, String passwordNueva) {
+        int res = 0;
+        Connection con = null;
+        PreparedStatement pstm = null;
+        try {
+            con = MySQLConexion.getConexion();
+            String sql = "UPDATE usuario SET password = ? WHERE id_usuario = ? AND password = ?";
+            pstm = con.prepareStatement(sql);
+            pstm.setString(1, passwordNueva);
+            pstm.setInt(2, idUsuario);
+            pstm.setString(3, passwordActual);
+            res = pstm.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error al actualizar contraseña: " + e.getMessage());
         } finally {
             try {
                 if (pstm != null) {

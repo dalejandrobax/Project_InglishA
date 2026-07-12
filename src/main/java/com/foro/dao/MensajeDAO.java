@@ -196,4 +196,139 @@ public class MensajeDAO {
 
         return idGenerado;
     }
+
+    public int contarMensajesPorUsuario(int idUsuario) {
+        int total = 0;
+        Connection con = null;
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+        try {
+            con = MySQLConexion.getConexion();
+            String sql = "SELECT COUNT(*) AS total FROM mensaje WHERE id_usuario = ?";
+            pstm = con.prepareStatement(sql);
+            pstm.setInt(1, idUsuario);
+            rs = pstm.executeQuery();
+            if (rs.next()) {
+                total = rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al contar mensajes: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstm != null) {
+                    pstm.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+            }
+        }
+        return total;
+    }
+
+    public int contarCorreccionesPorUsuario(int idUsuario) {
+        int total = 0;
+        Connection con = null;
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+        try {
+            con = MySQLConexion.getConexion();
+            String sql = "SELECT COUNT(*) AS total FROM correccion c "
+                    + "JOIN mensaje m ON c.id_mensaje = m.id_mensaje "
+                    + "WHERE m.id_usuario = ? AND c.explicacion_errores IS NOT NULL "
+                    + "AND TRIM(c.explicacion_errores) <> ''";
+            pstm = con.prepareStatement(sql);
+            pstm.setInt(1, idUsuario);
+            rs = pstm.executeQuery();
+            if (rs.next()) {
+                total = rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al contar correcciones: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstm != null) {
+                    pstm.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+            }
+        }
+        return total;
+    }
+
+    public int contarAudiosPorUsuario(int idUsuario) {
+        int total = 0;
+        Connection con = null;
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+        try {
+            con = MySQLConexion.getConexion();
+            String sql = "SELECT COUNT(*) AS total FROM mensaje WHERE id_usuario = ? AND tipo_mensaje = 'Audio'";
+            pstm = con.prepareStatement(sql);
+            pstm.setInt(1, idUsuario);
+            rs = pstm.executeQuery();
+            if (rs.next()) {
+                total = rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al contar audios: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstm != null) {
+                    pstm.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+            }
+        }
+        return total;
+    }
+
+    public int obtenerAutorMensaje(int idMensaje) {
+        int idUsuario = 0;
+        Connection con = null;
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+        try {
+            con = MySQLConexion.getConexion();
+            String sql = "SELECT id_usuario FROM mensaje WHERE id_mensaje = ?";
+            pstm = con.prepareStatement(sql);
+            pstm.setInt(1, idMensaje);
+            rs = pstm.executeQuery();
+            if (rs.next()) {
+                idUsuario = rs.getInt("id_usuario");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener autor del mensaje: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstm != null) {
+                    pstm.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+            }
+        }
+        return idUsuario;
+    }
 }
